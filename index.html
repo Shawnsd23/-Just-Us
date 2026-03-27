@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pieces of Us</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    color: #3e2f23;
+    overflow-x: hidden;
+    background: #f5efe6;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* Background */
+.bg {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(120deg, #f5efe6, #e8dccb, #d6c3a3);
+    z-index: -3;
+}
+
+/* Particles FIXED */
+.particles {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: -2;
+}
+
+.particles span {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    background: #c8a97e;
+    border-radius: 50%;
+    animation: float 10s linear infinite;
+    opacity: 0.4;
+}
+
+@keyframes float {
+    from { transform: translateY(100vh); }
+    to { transform: translateY(-10vh); }
+}
+
+/* Lock screen */
+#lock {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.box {
+    background: rgba(255,255,255,0.5);
+    padding: 30px;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    text-align: center;
+}
+
+/* Sections */
+.section {
+    height: 100vh;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+    padding: 20px;
+}
+
+.active {
+    display: flex;
+}
+
+/* Buttons */
+button {
+    padding: 10px 20px;
+    border: none;
+    background: #a67c52;
+    color: white;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    transform: scale(1.1);
+}
+
+/* Gallery */
+.gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.polaroid {
+    background: white;
+    padding: 10px;
+    width: 180px;
+    transform: rotate(-3deg);
+    transition: 0.3s;
+}
+
+.polaroid img {
+    width: 100%;
+}
+
+.polaroid:hover {
+    transform: rotate(0) scale(1.1);
+}
+
+/* Letter */
+#letter {
+    display: none;
+    max-width: 400px;
+    background: rgba(255,255,255,0.7);
+    padding: 20px;
+    border-radius: 15px;
+}
+
+/* Fade */
+.fade {
+    animation: fade 1.5s;
+}
+
+@keyframes fade {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+</style>
+</head>
+
+<body>
+
+<div class="bg"></div>
+<div class="particles" id="particles"></div>
+
+<!-- PASSWORD -->
+<div id="lock">
+    <div class="box">
+        <h2>For You 🤍</h2>
+        <input type="password" id="password" placeholder="Enter password">
+        <br><br>
+        <button onclick="unlock()">Enter</button>
+        <p id="error"></p>
+    </div>
+</div>
+
+<!-- SECTIONS -->
+<div id="home" class="section">
+    <h1>Hey You</h1>
+    <p>This isn’t just a site… it’s us.</p>
+</div>
+
+<div id="story" class="section">
+    <h2>It started small…</h2>
+    <p>just moments… that somehow became everything.</p>
+</div>
+
+<div id="memories" class="section">
+    <h2>Our Moments</h2>
+    <div class="gallery">
+        <div class="polaroid">
+            <img src="images/pic1.jpg">
+            <p>That day</p>
+        </div>
+        <div class="polaroid">
+            <img src="images/pic2.jpg">
+            <p>Your smile</p>
+        </div>
+        <div class="polaroid">
+            <img src="images/pic3.jpg">
+            <p>Us</p>
+        </div>
+    </div>
+</div>
+
+<div id="love" class="section">
+    <h2>One more thing…</h2>
+    <button onclick="showLetter()">Open it 💌</button>
+
+    <div id="letter">
+        <p>
+        I didn’t make something perfect…<br><br>
+        I made something real.<br><br>
+        And in all of this…<br>
+        you’re my favorite part.
+        </p>
+    </div>
+</div>
+
+<!-- MUSIC -->
+<audio id="music" loop>
+    <source src="music/song.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const password = "vento1729";
+
+/* Unlock FIXED */
+function unlock() {
+    const input = document.getElementById("password").value;
+
+    if (input === password) {
+        document.getElementById("lock").style.display = "none";
+        showSection(0);
+
+        const music = document.getElementById("music");
+        music.volume = 0.5;
+        music.play().catch(() => console.log("Autoplay blocked"));
+    } else {
+        document.getElementById("error").innerText = "Wrong password";
+    }
+}
+
+/* Sections */
+const sections = ["home","story","memories","love"];
+let current = 0;
+
+function showSection(i) {
+    sections.forEach(id => document.getElementById(id).classList.remove("active"));
+    document.getElementById(sections[i]).classList.add("active");
+}
+
+/* Scroll FIXED */
+let isScrolling = false;
+
+window.addEventListener("wheel", (e) => {
+    if (document.getElementById("lock").style.display !== "none") return;
+    if (isScrolling) return;
+
+    isScrolling = true;
+
+    if (e.deltaY > 0 && current < sections.length-1) current++;
+    else if (e.deltaY < 0 && current > 0) current--;
+
+    showSection(current);
+
+    setTimeout(() => isScrolling = false, 800);
+});
+
+/* Swipe FIXED */
+let startY = 0;
+
+window.addEventListener("touchstart", e => startY = e.touches[0].clientY);
+
+window.addEventListener("touchend", e => {
+    let endY = e.changedTouches[0].clientY;
+
+    if (startY - endY > 80 && current < sections.length-1) current++;
+    else if (endY - startY > 80 && current > 0) current--;
+
+    showSection(current);
+});
+
+/* Particles */
+for(let i=0;i<25;i++){
+    let span=document.createElement("span");
+    span.style.left=Math.random()*100+"%";
+    span.style.animationDuration=(5+Math.random()*5)+"s";
+    document.getElementById("particles").appendChild(span);
+}
+
+/* Letter animation */
+function showLetter(){
+    let letter = document.getElementById("letter");
+    letter.style.display = "block";
+    letter.classList.add("fade");
+}
+</script>
+
+</body>
+</html>
